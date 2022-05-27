@@ -7,39 +7,71 @@ import VisuallyHidden from "../VisuallyHidden";
 
 const SIZES = {
   small: {
-    "--height": "8px",
+    height: 8,
+    padding: 0,
+    radius: 4,
   },
   medium: {
-    "--height": "12px",
+    height: 12,
+    padding: 0,
+    radius: 4,
   },
   large: {
-    "--height": "24px",
+    height: 24,
+    padding: 4,
+    radius: 8,
   },
 };
 
 const ProgressBar = ({ value, size }) => {
   const styles = SIZES[size];
+
+  if (!styles) {
+    throw new Error(`Invalid size: ${size}`);
+  }
+
   return (
-    <Wrapper style={styles} size={size}>
-      <Filler value={value}></Filler>
+    <Wrapper
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      style={{
+        "--padding": styles.padding + "px",
+        "--radius": styles.radius + "px",
+      }}
+      size={size}
+    >
+      <VisuallyHidden>{value}%</VisuallyHidden>
+      <FillerWrapper>
+        <Filler
+          style={{
+            "--width": value + "%",
+            "--height": styles.height + "px",
+          }}
+        ></Filler>
+      </FillerWrapper>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.div`
   background-color: ${COLORS.transparentGray15};
-  border-radius: 8px;
-  box-shadow: inset 0px 2px 4px rgba(128, 128, 128, 0.35);
-  height: var(--height);
-  padding: ${({ size }) => size === "large" && "4px"};
-  width: 100%;
+  border-radius: var(--radius) 0 0 var(--radius);
+  box-shadow: inset 0px 2px 4px ${COLORS.transparentGray35};
+  padding: var(--padding);
+`;
+
+const FillerWrapper = styled.div`
+  border-radius: 4px;
+  overflow: hidden;
 `;
 
 const Filler = styled.div`
   background-color: ${COLORS.primary};
-  border-radius: ${({ value }) => (value === 100 ? "4px" : "4px 0 0 4px")};
-  height: 100%;
-  width: ${({ value }) => value}%;
+  border-radius: 4px 0 0 4px;
+  height: var(--height);
+  width: var(--width);
 `;
 
 export default ProgressBar;
